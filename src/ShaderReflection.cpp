@@ -3,7 +3,11 @@
 
 #include <wrl.h>
 #include "dxcapi.h"
+#include "d3d12shader.h"
 #include "ShaderReflection.h"
+#include <fstream>
+#include <filesystem>
+#include <vector>
 
 using namespace std;
 using Microsoft::WRL::ComPtr;
@@ -13,16 +17,53 @@ int main()
 	ComPtr<IDxcUtils> pUtils;
 	DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(pUtils.GetAddressOf()));
 
-	/*IDxcUtils* pUtils;
-	DxcCreateInstance(CLSID_DxcUtils, __uuidof(IDxcUtils), reinterpret_cast<void**>(&pUtils));*/
+	ComPtr<IDxcContainerReflection> pReflection;
+	DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(pReflection.GetAddressOf()));
 
-	/*IDxcLibrary* dxcLib;
-	if (DxcCreateInstance(CLSID_DxcLibrary, __uuidof(IDxcLibrary),
-		reinterpret_cast<void**>(&dxcLib)) != S_OK)
+	ComPtr<IDxcCompiler3> pCompiler3;
+	DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(pCompiler3.GetAddressOf()));
+
+	ComPtr<IDxcIncludeHandler> pIncludeHandler;
+	pUtils->CreateDefaultIncludeHandler(pIncludeHandler.ReleaseAndGetAddressOf());
+	auto path = filesystem::current_path().string();
+	path += "\\..\\shaders\\hjr.ref";
+	cout << "Getting reflection data from "<< path << endl;
+
+	std::ifstream file(path, std::ios::binary | std::ios::ate);
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	std::vector<char> buffer(size);
+	if (file.read(buffer.data(), size))
 	{
-		return E_FAIL;
-	}*/
+		DxcBuffer reflectionBuffer;
+		reflectionBuffer.Ptr = buffer.data();
+		reflectionBuffer.Size = size;
+		reflectionBuffer.Encoding = 0;
+		ComPtr<ID3D12ShaderReflection> pShaderReflection;
+		pUtils->CreateReflection(&reflectionBuffer, IID_PPV_ARGS(pShaderReflection.GetAddressOf()));
+		D3D12_SHADER_DESC desc;
+		pShaderReflection->GetDesc(&desc);
 
-	cout << "Hello ShaderReflection!" << endl;
+		auto const_buffer_count = desc.ConstantBuffers;
+		for (uint32_t i = 0; i < const_buffer_count; ++i)
+		{
+			auto const_buffer = pShaderReflection->GetConstantBufferByIndex(i);
+			D3D12_SHADER_BUFFER_DESC buffer_desc;
+			const_buffer->GetDesc(&buffer_desc);
+			cout << "Constant Buffer: " << buffer_desc.Name << endl;
+			auto var_count = buffer_desc.Variables;
+			for (uint32_t j = 0; j < var_count; ++j)
+			{
+				auto var = const_buffer->GetVariableByIndex(j);
+				D3D12_SHADER_VARIABLE_DESC var_desc;
+				var->GetDesc(&var_desc);
+				cout << "Variable: " << var_desc.Name << endl;
+			}
+		}
+	}
+
+	/*ComPtr<IDxcResult> pResult;
+	auto hr = pCompiler3->Compile(&source, argument.data(), argument.size(), pIncludeHandler.Get(), IID_PPV_ARGS(&pResult));*/
 	return 0;
 }

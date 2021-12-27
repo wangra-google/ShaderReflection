@@ -1,0 +1,1 @@
+dxc Happy_Jumping.hlsl -T cs_6_0 -E csmain -Qstrip_reflect -Fre happy_jumping_reflection.ref 
