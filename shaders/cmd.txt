@@ -1,1 +1,9 @@
 dxc Happy_Jumping.hlsl -T cs_6_0 -E csmain -Qstrip_reflect -Fre happy_jumping_reflection.ref 
+
+
+027c:err:module:import_dll Library MSVCP140D.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
+027c:err:module:import_dll Library VCRUNTIME140D.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
+027c:err:module:import_dll Library VCRUNTIME140_1D.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
+027c:err:module:import_dll Library ucrtbased.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
+027c:err:module:LdrInitializeThunk Importing dlls for L"C:\\Test\\ShaderReflection.EXE" failed, status c0000135
+
