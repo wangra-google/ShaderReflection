@@ -25,3 +25,9 @@ abnormal program termination
 0284:fixme:ntdll:EtwEventUnregister (deadbeef) stub.
 0284:fixme:ntdll:EtwEventUnregister (deadbeef) stub.
 
+
+TestTest
+This is just a test: 028c:fixme:msvcp:_Locinfo__Locinfo_ctor_cat_cstr (000000000021FC30 1 C) semi-stub
+028c:fixme:msvcp:_Locinfo__Locinfo_ctor_cat_cstr (000000000021F8D0 1 C) semi-stub
+000000000021FDD0028c:fixme:msvcp:_Locinfo__Locinfo_ctor_cat_cstr (000000000021FBF0 1 C) semi-stub
+
