@@ -1,9 +1,27 @@
 dxc Happy_Jumping.hlsl -T cs_6_0 -E csmain -Qstrip_reflect -Fre happy_jumping_reflection.ref 
 
-
+// Debug
 027c:err:module:import_dll Library MSVCP140D.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
 027c:err:module:import_dll Library VCRUNTIME140D.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
 027c:err:module:import_dll Library VCRUNTIME140_1D.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
 027c:err:module:import_dll Library ucrtbased.dll (which is needed by L"C:\\Test\\ShaderReflection.EXE") not found
 027c:err:module:LdrInitializeThunk Importing dlls for L"C:\\Test\\ShaderReflection.EXE" failed, status c0000135
+
+
+// Release
+
+0284:fixme:font:get_name_record_codepage encoding 29 not handled, platform 1.
+0284:fixme:font:get_name_record_codepage encoding 29 not handled, platform 1.
+0284:fixme:font:get_name_record_codepage encoding 29 not handled, platform 1.
+0284:fixme:font:get_name_record_codepage encoding 29 not handled, platform 1.
+0284:fixme:font:get_name_record_codepage encoding 20 not handled, platform 1.
+0284:fixme:font:get_name_record_codepage encoding 20 not handled, platform 1.
+0284:fixme:ntdll:EtwEventRegister ({5c65fe8c-9f96-4bfd-9a87-9f8ebd45da64}, 000000018001A9F0, 0000000181202000, 0000000181202000) stub.
+0284:fixme:ntdll:EtwEventRegister ({af2ca688-62aa-48e9-8bf6-a0ca0cae2354}, 0000000000A81270, 0000000000BDDC30, 0000000000BDDC30) stub.
+Getting reflection data from C:\Test\..\shaders\hjr.ref0284:fixme:msvcp:_Locinfo__Locinfo_ctor_cat_cstr (000000000021F950 1 C) semi-stub
+
+
+abnormal program termination
+0284:fixme:ntdll:EtwEventUnregister (deadbeef) stub.
+0284:fixme:ntdll:EtwEventUnregister (deadbeef) stub.
 
