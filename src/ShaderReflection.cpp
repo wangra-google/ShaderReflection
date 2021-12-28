@@ -36,7 +36,7 @@ int main()
 	std::vector<char> buffer(size);
 	if (file.read(buffer.data(), size))
 	{
-		cout << "Yes I found dll!!!" << path << endl;
+		cout << "Yes I found dlls!!!" << path << endl;
 		DxcBuffer reflectionBuffer;
 		reflectionBuffer.Ptr = buffer.data();
 		reflectionBuffer.Size = size;
@@ -62,6 +62,10 @@ int main()
 				cout << "Variable: " << var_desc.Name << endl;
 			}
 		}
+	}
+	else
+	{
+		cout << "No I cannot find dlls!!!" << path << endl;
 	}
 
 	/*ComPtr<IDxcResult> pResult;
