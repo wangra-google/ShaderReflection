@@ -27,7 +27,7 @@ int main()
 	pUtils->CreateDefaultIncludeHandler(pIncludeHandler.ReleaseAndGetAddressOf());
 	auto path = filesystem::current_path().string();
 	path += "\\..\\shaders\\hjr.ref";
-	cout << "Getting reflection data from "<< path << endl;
+	cout << "Getting d3d12 reflection data from "<< path << endl;
 
 	std::ifstream file(path, std::ios::binary | std::ios::ate);
 	std::streamsize size = file.tellg();
