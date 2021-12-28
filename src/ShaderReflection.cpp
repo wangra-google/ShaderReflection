@@ -36,6 +36,7 @@ int main()
 	std::vector<char> buffer(size);
 	if (file.read(buffer.data(), size))
 	{
+		cout << "Yes I found dll!!!" << path << endl;
 		DxcBuffer reflectionBuffer;
 		reflectionBuffer.Ptr = buffer.data();
 		reflectionBuffer.Size = size;
