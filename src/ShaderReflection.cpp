@@ -30,8 +30,11 @@ int main()
 	cout << "Getting d3d12 reflection data from "<< path << endl;
 
 	std::ifstream file(path, std::ios::binary | std::ios::ate);
+	cout << "Create ifstream" << endl;
 	std::streamsize size = file.tellg();
+	cout << "Getting file size" << size << endl;
 	file.seekg(0, std::ios::beg);
+	cout << "file.seekg" << endl;
 
 	std::vector<char> buffer(size);
 	if (file.read(buffer.data(), size))
@@ -65,7 +68,7 @@ int main()
 	}
 	else
 	{
-		cout << "No I cannot find dlls!!!" << path << endl;
+		cout << "No I cannot find dlls!!!" << endl;
 	}
 
 	/*ComPtr<IDxcResult> pResult;
