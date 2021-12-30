@@ -15,15 +15,13 @@ static string shader_source = "float3              iMouse;\n"
 "float4              iResolution;\n"
 "float               iTime;\n"
 "float               iFrame;\n"
-"RWTexture2D<float4> outImage : register(u1);\n"
 "\n"
-"[numthreads(8, 8, 1)]\n"
-"void csmain(uint3 tid : SV_DispatchThreadID)\n"
+"float4 psmain(): SV_TARGET\n"
 "{\n"
 "    float4 outColor = (float4)0;\n"
-"    float2 fragCoord = float2(tid.x, iResolution.y - tid.y) + float2(0.5, 0.5);\n"
+"    float2 fragCoord = float2(iMouse.x, iResolution.y - iMouse.y) + float2(0.5, 0.5);\n"
 "    outColor = float4(fragCoord, iTime, iFrame) * iMouse.xyzz;       \n"
-"    outImage[tid.xy] = outColor;\n"
+"    return outColor;\n"
 "}"
 ;
 
@@ -32,7 +30,7 @@ int main()
 	ComPtr<ID3DBlob> pBlob;
 	ComPtr<ID3DBlob> pErrorBlob;
 	uint32_t shader_size = (uint32_t)shader_source.size();
-	auto hr = D3DCompile2(shader_source.c_str(), shader_size, nullptr, nullptr, nullptr, "csmain", "cs_5_0", 0, 0, 0, nullptr, 0, pBlob.GetAddressOf(), pErrorBlob.GetAddressOf());
+	auto hr = D3DCompile2(shader_source.c_str(), shader_size, nullptr, nullptr, nullptr, "psmain", "ps_4_0", 0, 0, 0, nullptr, 0, pBlob.GetAddressOf(), pErrorBlob.GetAddressOf());
 
 	ComPtr<ID3D12ShaderReflection> pShaderReflection;
 	if (hr != S_OK)
