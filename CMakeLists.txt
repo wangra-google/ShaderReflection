@@ -34,48 +34,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SR_DIR    ${CMAKE_CURRENT_SOURCE_DIR})
-set(SRC_DIR    ${SR_DIR}/src)
-set(SR_THIRD_PARTY_DIR ${SR_DIR}/third_party)
-set(DXC_DIR    ${SR_THIRD_PARTY_DIR}/dxc)
-set(TARGET_NAME ShaderReflection)
+set(ROOT_DIR    ${CMAKE_SOURCE_DIR})
+set(THIRD_PARTY_DIR ${ROOT_DIR}/third_party)
 
-find_path(DXC_INCLUDE_DIR dxcapi.h d3d12shader.h)
-find_library(DXC_LIBRARY dxcompiler)
-
-if(DXC_INCLUDE_DIR AND DXC_LIBRARY)
-    # you may need that if further action in your CMakeLists.txt depends
-    # on detecting your library
-    message("I found DXC!!!")
-    #set(SIFTGPU_FOUND TRUE)
-
-    # you may need that if you want to conditionally compile some parts
-    # of your code depending on library availability
-    #add_definitions(-DHAVE_LIBSIFTGPU=1)
-else()
-    message("Oh noooo! I found nothing!!!")
-    set(DXC_INCLUDE_DIR ${DXC_DIR}/inc)
-    set(DXC_LIBRARY ${DXC_DIR}/lib/x64/dxcompiler.lib)
-endif()
-
-include_directories(${DXC_INCLUDE_DIR})
-set(ALL_LIBRARIES ${ALL_LIBRARIES} ${DXC_LIBRARY})
-
-message("DXC_INCLUDE_DIR", ${DXC_INCLUDE_DIR})
-message("ALL_LIBRARIES", ${DXC_LIBRARY})
-
-#add_subdirectory(${DXC_DIR})
-
-# Add source to this project's executable.
-add_executable (${TARGET_NAME} "src/ShaderReflection.cpp" "include/ShaderReflection.h")
-
-target_include_directories(
-            ${TARGET_NAME}
-            PUBLIC ${SR_DIR}/include
-                    ${DXC_INCLUDE_DIR}
-        )
-
-target_link_libraries(${TARGET_NAME} ${ALL_LIBRARIES})
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+add_subdirectory(projects)
