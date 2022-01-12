@@ -12,19 +12,83 @@
 using namespace std;
 using Microsoft::WRL::ComPtr;
 
-static string shader_source = "float3              iMouse;\n"
+static string shader_source_simple = "float3              iMouse;\n"
 "float4              iResolution;\n"
 "float               iTime;\n"
 "float               iFrame;\n"
-"RWTexture2D<float4> outImage : register(u1);\n"
 "\n"
-"[numthreads(8, 8, 1)]\n"
-"void csmain(uint3 tid : SV_DispatchThreadID)\n"
+"float4 main(): SV_TARGET\n"
 "{\n"
 "    float4 outColor = (float4)0;\n"
-"    float2 fragCoord = float2(tid.x, iResolution.y - tid.y) + float2(0.5, 0.5);\n"
+"    float2 fragCoord = float2(iMouse.x, iResolution.y - iMouse.y) + float2(0.5, 0.5);\n"
 "    outColor = float4(fragCoord, iTime, iFrame) * iMouse.xyzz;       \n"
-"    outImage[tid.xy] = outColor;\n"
+"    return outColor;\n"
+"}"
+;
+
+static string shader_source = "Texture2D     MyTexture : register(t0, space0);\n"
+"SamplerState  MySampler : register(s1, space1);\n"
+"\n"
+"struct RGB {\n"
+"  float r;\n"
+"  float g;\n"
+"  float b;\n"
+"};\n"
+"\n"
+"struct UBO {\n"
+"  float4x4  XformMatrix;\n"
+"  float3    Scale;\n"
+"  RGB       Rgb;\n"
+"  float     t;\n"
+"  float2    uv; \n"
+"};\n"
+"\n"
+"ConstantBuffer<UBO> MyConstants[2] : register(b2, space2);\n"
+"\n"
+"struct Data {\n"
+"  float4  Element;\n"
+"};\n"
+"\n"
+"ConsumeStructuredBuffer<Data> MyBufferIn : register(u3, space2);\n"
+"AppendStructuredBuffer<Data> MyBufferOut : register(u4, space2);\n"
+"\n"
+"struct PSInput {\n"
+"  float4  Position  : SV_POSITION;\n"
+"  float3  Normal    : NORMAL;\n"
+"  float3  Color     : COLOR;\n"
+"  float   Alpha     : OPACITY;\n"
+"  float4  Scaling   : SCALE;\n"
+"  float2  TexCoord0 : TEXCOORD0;\n"
+"  float2  TexCoord1 : TEXCOORD1;\n"
+"  float2  TexCoord2 : TEXCOORD2;\n"
+"};\n"
+"\n"
+"struct PSOutput {\n"
+"  float4  oColor0 : SV_TARGET0;\n"
+"  float4  oColor1 : SV_TARGET1;\n"
+"  float4  oColor2 : SV_TARGET2;\n"
+"  float4  oColor3 : SV_TARGET3;\n"
+"  float4  oColor4 : SV_TARGET4;\n"
+"  float4  oColor5 : SV_TARGET5;\n"
+"  float4  oColor6 : SV_TARGET6;\n"
+"  float4  oColor7 : SV_TARGET7;\n"
+"};\n"
+"\n"
+"PSOutput main(PSInput input)\n"
+"{\n"
+"  Data val = MyBufferIn.Consume();\n"
+"  MyBufferOut.Append(val);\n"
+"\n"
+"  PSOutput ret;\n"
+"  ret.oColor0 = mul(MyConstants[0].XformMatrix, input.Position);\n"
+"  ret.oColor1 = float4(input.Normal, 1) + float4(MyConstants[0].Scale, 0);\n"
+"  ret.oColor2 = float4(input.Color, 1);\n"
+"  ret.oColor3 = float4(MyTexture.Sample(MySampler, input.TexCoord0).xyz, input.Alpha);\n"
+"  ret.oColor4 = input.Scaling;\n"
+"  ret.oColor5 = float4(input.TexCoord0, 0, 0);\n"
+"  ret.oColor6 = float4(input.TexCoord1, 0, 0);\n"
+"  ret.oColor7 = float4(input.TexCoord2, 0, 0);\n"
+"  return ret;\n"
 "}"
 ;
 
@@ -39,6 +103,7 @@ int main()
 	bool compile_shader = true;
 	DxcBuffer sourceBuffer;
 	std::vector<char> raw_buffer;
+	ComPtr<IDxcBlob> pReflectionData;
 
 	if (compile_shader)
 	{
@@ -52,11 +117,11 @@ int main()
 		std::vector<LPCWSTR> arguments;
 		//-E for the entry point (eg. PSMain)
 		arguments.push_back(L"-E");
-		arguments.push_back(L"csmain");
+		arguments.push_back(L"main");
 
 		//-T for the target profile (eg. ps_6_2)
 		arguments.push_back(L"-T");
-		arguments.push_back(L"cs_6_0");
+		arguments.push_back(L"ps_6_0");
 
 		//Strip reflection data and pdbs (see later)
 		arguments.push_back(L"-Qstrip_debug");
@@ -77,7 +142,6 @@ int main()
 		ComPtr<IDxcResult> pCompileResult;
 		auto hr = pCompiler3->Compile(&sourceBuffer, arguments.data(), (uint32_t)arguments.size(), nullptr, IID_PPV_ARGS(pCompileResult.GetAddressOf()));
 
-		ComPtr<IDxcBlob> pReflectionData;
 		pCompileResult->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(pReflectionData.GetAddressOf()), nullptr);
 		sourceBuffer.Ptr = pReflectionData->GetBufferPointer();
 		sourceBuffer.Size = pReflectionData->GetBufferSize();
@@ -129,9 +193,31 @@ int main()
 			{
 				auto var = const_buffer->GetVariableByIndex(j);
 				D3D12_SHADER_VARIABLE_DESC var_desc;
+				ID3D12ShaderReflectionConstantBuffer* buffer = var->GetBuffer();
+				D3D12_SHADER_BUFFER_DESC buffer_desc_1;
+				buffer->GetDesc(&buffer_desc_1);
 				var->GetDesc(&var_desc);
 				cout << "Variable: " << var_desc.Name << endl;
+				cout << endl << endl;
 			}
+		}
+
+		auto bound_resource_count = desc.BoundResources;
+		for (uint32_t i = 0; i < bound_resource_count; ++i)
+		{
+			D3D12_SHADER_INPUT_BIND_DESC bound_res_desc;
+			pShaderReflection->GetResourceBindingDesc(i, &bound_res_desc);
+			cout << "Resource: " << bound_res_desc.Name << endl;
+			cout << "Type: " << bound_res_desc.Type << endl;
+			cout << "BindPoint: " << bound_res_desc.BindPoint << endl;
+			cout << "BindCount: " << bound_res_desc.BindCount << endl;
+			cout << "uFlags: " << bound_res_desc.uFlags << endl;
+			cout << "ReturnType: " << bound_res_desc.ReturnType << endl;
+			cout << "Dimension: " << bound_res_desc.Dimension << endl;
+			cout << "NumSamples: " << bound_res_desc.NumSamples << endl;
+			cout << "Space: " << bound_res_desc.Space << endl;
+			cout << "uID: " << bound_res_desc.uID << endl;
+			cout << endl;
 		}
 	}
 	else
