@@ -1,7 +1,7 @@
 ﻿// ShaderReflection.cpp : Defines the entry point for the application.
 //
 
-#include "ShaderReflection.h"
+#include "DxcLibportoShaderReflection.h"
 #include "d3d12shader.h"
 #include "dxcapi.h"
 #include <filesystem>

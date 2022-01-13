@@ -36,5 +36,16 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(ROOT_DIR    ${CMAKE_SOURCE_DIR})
 set(THIRD_PARTY_DIR ${ROOT_DIR}/third_party)
+set(SHADER_PARTY_DIR ${ROOT_DIR}/shaders)
+set(LIBPORTO_DISABLE_SAMPLES ON)
+add_subdirectory(${THIRD_PARTY_DIR}/libporto)
+
+set(ENABLE_DXVK   OFF CACHE BOOL "" FORCE)
+set(ENABLE_DXIIVK OFF CACHE BOOL "" FORCE)
+
+target_compile_definitions(
+        porto
+        PUBLIC  LIBPORTO_EXPERIMENTAL_ENABLE_SPIRV_SHADERS
+    )
 
 add_subdirectory(projects)
