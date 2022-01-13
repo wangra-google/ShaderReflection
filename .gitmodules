@@ -1,0 +1,4 @@
+[submodule "third_party/libporto"]
+	path = third_party/libporto
+	url = sso://porto-internal.googlesource.com/libporto
+	branch = porto-dev/d3d12
