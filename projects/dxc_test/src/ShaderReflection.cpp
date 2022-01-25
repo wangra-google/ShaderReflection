@@ -31,7 +31,7 @@ int main() {
   DxcCreateInstance(CLSID_DxcContainerReflection,
                     IID_PPV_ARGS(pContainer.GetAddressOf()));
 
-  bool compile_shader = false;
+  bool compile_shader = true;
   bool test_library = false;
   DxcBuffer shaderBuffer;
   std::vector<char> raw_buffer;

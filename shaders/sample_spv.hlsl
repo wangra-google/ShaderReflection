@@ -1,5 +1,5 @@
-Texture2D     MyTexture : register(t0, space0);
-SamplerState  MySampler : register(s1, space1);
+Texture2D     MyTexture : register(t0, space0); // D3D_SIT_TEXTURE2D
+SamplerState  MySampler : register(s1, space1); // D3D_SIT_SAMPLER
 
 struct RGB {
   float r;
@@ -15,14 +15,14 @@ struct UBO {
   float2    uv; 
 };
 
-ConstantBuffer<UBO> MyConstants[2] : register(b2, space2);
+ConstantBuffer<UBO> MyConstants : register(b2, space2); // D3D_SIT_CBUFFER
 
 struct Data {
   float4  Element;
 };
 
-ConsumeStructuredBuffer<Data> MyBufferIn : register(u3, space2);
-AppendStructuredBuffer<Data> MyBufferOut : register(u4, space2);
+ConsumeStructuredBuffer<Data> MyBufferIn : register(u3, space2); // D3D_SIT_UAV_CONSUME_STRUCTURED
+AppendStructuredBuffer<Data> MyBufferOut : register(u4, space2); // D3D_SIT_UAV_APPEND_STRUCTURED
 
 struct PSInput {
   float4  Position  : SV_POSITION;
@@ -46,17 +46,33 @@ struct PSOutput {
   float4  oColor7 : SV_TARGET7;
 };
 
+struct myStruct
+{
+    float value;
+};
+
+TextureBuffer<myStruct> texture_buffer; // D3D_SIT_TBUFFER
+RWTexture2D<float2>     rw_texture[2]; // D3D_SIT_UAV_RWTYPED
+StructuredBuffer<myStruct> sturctured_buffer; // D3D_SIT_STRUCTURED
+RWStructuredBuffer<myStruct> rw_sturctured_buffer; // D3D_SIT_UAV_RWSTRUCTURED
+ByteAddressBuffer ba_buffer; // D3D_SIT_BYTEADDRESS
+RWByteAddressBuffer rw_ba_buffer; // D3D_SIT_RWBYTEADDRESS
+
 PSOutput main(PSInput input)
 {
   Data val = MyBufferIn.Consume();
   MyBufferOut.Append(val);
+  
+  rw_texture[0][uint2(0,0)] = 1;
+  rw_sturctured_buffer[0].value = 1;
+  rw_ba_buffer.Store(1, 1);
 
   PSOutput ret;
-  ret.oColor0 = mul(MyConstants[0].XformMatrix, input.Position);
-  ret.oColor1 = float4(input.Normal, 1) + float4(MyConstants[0].Scale, 0);
+  ret.oColor0 = mul(MyConstants.XformMatrix, input.Position);
+  ret.oColor1 = float4(input.Normal, 1) + float4(MyConstants.Scale, 0);
   ret.oColor2 = float4(input.Color, 1);
   ret.oColor3 = float4(MyTexture.Sample(MySampler, input.TexCoord0).xyz, input.Alpha);
-  ret.oColor4 = input.Scaling;
+  ret.oColor4 = input.Scaling * texture_buffer.value * sturctured_buffer[0].value * ba_buffer.Load(0);
   ret.oColor5 = float4(input.TexCoord0, 0, 0);
   ret.oColor6 = float4(input.TexCoord1, 0, 0);
   ret.oColor7 = float4(input.TexCoord2, 0, 0);
