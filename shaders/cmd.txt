@@ -1,6 +1,6 @@
 dxc Happy_Jumping.hlsl -T cs_6_0 -E csmain -Qstrip_reflect -Fre happy_jumping_reflection.ref 
 
-dxc sample_spv.hlsl -T ps_6_0 -E main -spirv -fvk-use-dx-layout -fvk-use-dx-position-w -fspv-reflect -fvk-auto-shift-bindings -HV 2016 -Fo sample_spv.spv // check layout
+dxc sample_spv.hlsl -T ps_6_0 -E main -spirv -fvk-use-dx-layout -fvk-use-dx-position-w -fspv-reflect -fvk-auto-shift-bindings -HV 2016 -Fo sample_spv.spv 
 
 dxc ms.hlsl -T ps_6_0 -E main -spirv -fvk-use-dx-layout -fvk-use-dx-position-w -fspv-reflect -fvk-auto-shift-bindings -HV 2016 -Fo ms.spv
 
