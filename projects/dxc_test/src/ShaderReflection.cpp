@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <wrl.h>
+#include <cassert>
 #include "CommonShader.h"
 
 
@@ -136,47 +137,52 @@ int main() {
                              IID_PPV_ARGS(pShaderReflection.GetAddressOf()));
   }
 
-  if (hr == S_OK) {
-    D3D12_SHADER_DESC desc;
-    pShaderReflection->GetDesc(&desc);
+  if (hr == S_OK)
+  {
+	  D3D12_SHADER_DESC desc;
+	  pShaderReflection->GetDesc(&desc);
 
-    auto const_buffer_count = desc.ConstantBuffers;
-    for (uint32_t i = 0; i < const_buffer_count; ++i) {
-      auto const_buffer = pShaderReflection->GetConstantBufferByIndex(i);
-      D3D12_SHADER_BUFFER_DESC buffer_desc;
-      const_buffer->GetDesc(&buffer_desc);
-      cout << "Constant Buffer: " << buffer_desc.Name << endl;
-      auto var_count = buffer_desc.Variables;
-      for (uint32_t j = 0; j < var_count; ++j) {
-        auto var = const_buffer->GetVariableByIndex(j);
-        D3D12_SHADER_VARIABLE_DESC var_desc;
-        ID3D12ShaderReflectionConstantBuffer *buffer = var->GetBuffer();
-        D3D12_SHADER_BUFFER_DESC buffer_desc_1;
-        buffer->GetDesc(&buffer_desc_1);
-        var->GetDesc(&var_desc);
-        cout << "Variable: " << var_desc.Name << endl;
-        cout << endl << endl;
-      }
-    }
+	  auto const_buffer_count = desc.ConstantBuffers;
+	  for (uint32_t i = 0; i < const_buffer_count; ++i)
+	  {
+		  auto cbuffer = pShaderReflection->GetConstantBufferByIndex(i);
+		  D3D12_SHADER_BUFFER_DESC buffer_desc;
+		  cbuffer->GetDesc(&buffer_desc);
+		  auto const_buffer = pShaderReflection->GetConstantBufferByName(buffer_desc.Name);
+		  assert(cbuffer == const_buffer);
 
-    auto bound_resource_count = desc.BoundResources;
-    for (uint32_t i = 0; i < bound_resource_count; ++i) {
-      D3D12_SHADER_INPUT_BIND_DESC bound_res_desc;
-      pShaderReflection->GetResourceBindingDesc(i, &bound_res_desc);
-      cout << "Resource: " << bound_res_desc.Name << endl;
-      cout << "Type: " << bound_res_desc.Type << endl;
-      cout << "BindPoint: " << bound_res_desc.BindPoint << endl;
-      cout << "BindCount: " << bound_res_desc.BindCount << endl;
-      cout << "uFlags: " << bound_res_desc.uFlags << endl;
-      cout << "ReturnType: " << bound_res_desc.ReturnType << endl;
-      cout << "Dimension: " << bound_res_desc.Dimension << endl;
-      cout << "NumSamples: " << bound_res_desc.NumSamples << endl;
-      cout << "Space: " << bound_res_desc.Space << endl;
-      cout << "uID: " << bound_res_desc.uID << endl;
-      cout << endl;
-    }
-  } else {
-    cout << "FAILED: Cannot get reflection data!!!" << endl;
+		  cout << "Constant Buffer: " << buffer_desc.Name << " with size: " << buffer_desc.Size << " with Var count: " << buffer_desc.Variables << endl;
+		  auto var_count = buffer_desc.Variables;
+		  for (uint32_t j = 0; j < var_count; ++j)
+		  {
+			  auto var = const_buffer->GetVariableByIndex(j);
+			  D3D12_SHADER_VARIABLE_DESC var_desc;
+			  var->GetDesc(&var_desc);
+			  cout << "Variable Name:	 " << var_desc.Name << endl;
+			  cout << "	StartOffset: " << var_desc.StartOffset << endl;
+			  cout << "	Size:		 " << var_desc.Size << endl;
+			  cout << endl;
+		  }
+	  }
+
+	  cout << "Bound Resource Count: " << desc.BoundResources << endl;
+	  auto binding_count = desc.BoundResources;
+	  for (uint32_t i = 0; i < binding_count; ++i)
+	  {
+		  D3D12_SHADER_INPUT_BIND_DESC desc;
+		  auto binding = pShaderReflection->GetResourceBindingDesc(i, &desc);
+		  cout << "Name: " << desc.Name << endl;
+		  cout << "	Type:		" << desc.Type << endl;
+		  cout << "	Dimension:	" << desc.Dimension << endl;
+		  cout << "	BindCount:	" << desc.BindCount << endl;
+		  cout << "	BindPoint:	" << desc.BindPoint << endl;
+		  cout << "	Space:		" << desc.Space << endl;
+		  cout << "	NumSamples: " << desc.NumSamples << endl;
+	  }
+  }
+  else
+  {
+	  cout << "FAILED: Cannot get reflection data!!!" << endl;
   }
 
   return 0;

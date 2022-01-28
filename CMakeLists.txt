@@ -48,4 +48,9 @@ target_compile_definitions(
         PUBLIC  LIBPORTO_EXPERIMENTAL_ENABLE_SPIRV_SHADERS
     )
 
+target_compile_definitions(
+        porto_d3dcompiler
+        PUBLIC  LIBPORTO_EXPERIMENTAL_ENABLE_SHADER_REFLECTION
+    )
+
 add_subdirectory(projects)
