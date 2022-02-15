@@ -59,6 +59,14 @@ RWByteAddressBuffer rw_ba_buffer; // D3D_SIT_RWBYTEADDRESS
 RWTexture2DArray<float2>     rw_texture_array; // D3D_SIT_UAV_RWTYPED
 Texture2DMS<float4, 128> ms_texture;
 Texture2DMSArray<float4, 64> ms_texture_array;
+Buffer<uint> buffer_int;
+Buffer<uint2> buffer_int2;
+Buffer<uint3> buffer_int3;
+Buffer<uint4> buffer_int4;
+Buffer<float> buffer_float;
+Buffer<float2> buffer_float2;
+Buffer<float3> buffer_float3;
+Buffer<float4> buffer_float4;
 cbuffer c_buffer : register(b11, space2) { int2 cbuffer_i2; float3 cbuffer_f3; }
 tbuffer t_buffer : register(t15)
 {
@@ -72,7 +80,9 @@ PSOutput main(PSInput input)
   Data val = consume_structured_buffer.Consume();
   append_structured_buffer.Append(val);
   
-  rw_texture[0][uint2(0,0)] = 1;
+  int buffer_value = buffer_int[0] * buffer_int2[0].x * buffer_int3[0].x * buffer_int4[0].x;
+  buffer_value *= (int)(buffer_float[0] * buffer_float2[0].x * buffer_float3[0].x * buffer_float4[0].x);
+  rw_texture[0][uint2(0,0)] = buffer_value;
   rw_sturctured_buffer[0].f3.x = 1;
   rw_ba_buffer.Store(1, 1);
   int w,h,n;

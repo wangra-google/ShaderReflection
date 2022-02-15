@@ -55,6 +55,7 @@ int main()
 				cout << "Variable Name:	 " << var_desc.Name << endl;
 				cout << "	StartOffset: " << var_desc.StartOffset << endl;
 				cout << "	Size:		 " << var_desc.Size << endl;
+				cout << "	uFlags:		 " << var_desc.uFlags << endl;
 				cout << endl;
 			}
 		}
