@@ -67,6 +67,7 @@ Buffer<float> buffer_float;
 Buffer<float2> buffer_float2;
 Buffer<float3> buffer_float3;
 Buffer<float4> buffer_float4;
+RWBuffer<uint> rw_buffer;
 cbuffer c_buffer : register(b11, space2) { int2 cbuffer_i2; float3 cbuffer_f3; }
 tbuffer t_buffer : register(t15)
 {
@@ -85,6 +86,7 @@ PSOutput main(PSInput input)
   rw_texture[0][uint2(0,0)] = buffer_value;
   rw_sturctured_buffer[0].f3.x = 1;
   rw_ba_buffer.Store(1, 1);
+  rw_buffer[0] = (uint)buffer_value;
   int w,h,n;
   ms_texture.GetDimensions(w,h,n); 
   int w1,h1,e1,n1;

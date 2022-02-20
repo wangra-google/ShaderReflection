@@ -23,6 +23,12 @@ int main()
 	ComPtr<ID3D12ShaderReflection> pShaderReflection;
 	if (hr != S_OK)
 	{
+		if (pErrorBlob)
+		{
+			char* c_error_messages = static_cast<char*>(pErrorBlob->GetBufferPointer());
+			std::string error_messages = std::string(c_error_messages);
+			cout << error_messages << endl;
+		}
 		cout << "Compiling Shader failed!" << endl;
 		return 0;
 	}
